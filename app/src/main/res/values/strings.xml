@@ -9,4 +9,8 @@
     <string name="help">Помощь</string>
     <string name="setting">Настройки</string>
     <string name="about_us">О нас</string>
+    <string name="add_place">Add place</string>
+
+    //Location Service
+    <string name="foreground_notification_description">Updating location...</string>
 </resources>

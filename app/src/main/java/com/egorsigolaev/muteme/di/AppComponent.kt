@@ -2,10 +2,7 @@ package com.egorsigolaev.muteme.di
 
 import android.app.Application
 import com.egorsigolaev.muteme.MuteMeApp
-import com.egorsigolaev.muteme.di.modules.ActivityBindingModule
-import com.egorsigolaev.muteme.di.modules.MainModule
-import com.egorsigolaev.muteme.di.modules.ScreenBindingModule
-import com.egorsigolaev.muteme.di.modules.ViewModelModule
+import com.egorsigolaev.muteme.di.modules.*
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -17,7 +14,9 @@ import dagger.android.AndroidInjector
         ActivityBindingModule::class,
         ViewModelModule::class,
         ScreenBindingModule::class,
-        MainModule::class
+        MainModule::class,
+        RepositoryModule::class,
+        StorageModule::class
     ]
 )
 @AppScope

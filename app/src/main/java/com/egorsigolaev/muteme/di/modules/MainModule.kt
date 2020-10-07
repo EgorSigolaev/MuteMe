@@ -1,7 +1,7 @@
 package com.egorsigolaev.muteme.di.modules
 
 import androidx.lifecycle.ViewModel
-import com.egorsigolaev.muteme.presentation.screens.MainViewModel
+import com.egorsigolaev.muteme.presentation.screens.main.MainViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

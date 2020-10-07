@@ -1,10 +1,8 @@
-package com.egorsigolaev.muteme.presentation.screens
+package com.egorsigolaev.muteme.presentation.screens.main
 
 import android.Manifest
 import android.app.AlertDialog
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.LocationManager
@@ -16,9 +14,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.egorsigolaev.muteme.R
+import com.egorsigolaev.muteme.domain.models.MainScreenData
 import com.egorsigolaev.muteme.presentation.helpers.ViewModelFactory
 import com.egorsigolaev.muteme.presentation.helpers.injectViewModel
+import com.egorsigolaev.muteme.presentation.services.LocationService
 import com.egorsigolaev.presentation.base.BaseFragment
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -68,6 +69,12 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
         menuButton.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
         }
+
+        buttonAddPlace.setOnClickListener {
+            findNavController().navigate(R.id.action_to_add_place_fragment)
+        }
+
+
     }
 
     private fun getLastKnownLocation(){
@@ -110,7 +117,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
                 return true
             }
             GoogleApiAvailability.getInstance().isUserResolvableError(available) -> {
-                val dialog = GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), available, ERROR_DIALOG_REQUEST_CODE)
+                val dialog = GoogleApiAvailability.getInstance().getErrorDialog(requireActivity(), available,
+                    ERROR_DIALOG_REQUEST_CODE
+                )
                 dialog.show()
             }
             else -> {
@@ -166,7 +175,13 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        viewModel.obtainEvent(MainViewEvent.OnRequestPermissionsResult(requestCode, permissions, grantResults))
+        viewModel.obtainEvent(
+            MainViewEvent.OnRequestPermissionsResult(
+                requestCode,
+                permissions,
+                grantResults
+            )
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -181,6 +196,9 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
         when(viewState){
             MainViewState.ScreenShowed -> {
             }
+            is MainViewState.PlacesLoaded -> {
+                val places = viewState.places
+            }
         }
     }
 
@@ -189,6 +207,12 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
             is MainViewAction.ShowError -> {
                 showToast(viewAction.message)
             }
+            is MainViewAction.StartListenLocation -> {
+                val locationServiceIntent = Intent(requireContext(), LocationService::class.java)
+                locationServiceIntent.putParcelableArrayListExtra(LocationService.PLACES_EXTRA, ArrayList(viewAction.places))
+                requireContext().startService(locationServiceIntent)
+                requireContext().registerReceiver(userLocationBR, IntentFilter(BROADCAST_ACTION))
+            }
         }
     }
 
@@ -196,6 +220,13 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
         mapView.getMapAsync(this)
     }
 
+    private val userLocationBR = object : BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {locationIntent ->
+                val userLocation = locationIntent.extras?.get(LocationService.SCREEN_DATA) as MainScreenData
+            }
+        }
+    }
 
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -230,11 +261,6 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
         mapView.onStop()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mapView.onDestroy()
-    }
-
     override fun onLowMemory() {
         super.onLowMemory()
         mapView.onLowMemory()
@@ -250,6 +276,7 @@ class MainFragment : BaseFragment(R.layout.fragment_main), OnMapReadyCallback {
         const val LOCATION_PERMISSION_REQUEST_CODE = 2000
         const val ENABLE_GPS_REQUEST_CODE = 3000
         const val MAPVIEW_BUNDLE_KEY = ""
+        const val BROADCAST_ACTION = "BROADCAST_ACTION"
     }
 
 
