@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Mute Me</string>
+
+    // Google Maps Api Key
+    <string name="google_maps_api_key">AIzaSyClQ_mQPHWE-K9hDoR8TPv6hk40K1Dqsu4</string>
+
+    // Main Screen
+    <string name="travel_history">История поездок</string>
+    <string name="help">Помощь</string>
+    <string name="setting">Настройки</string>
+    <string name="about_us">О нас</string>
+</resources>
