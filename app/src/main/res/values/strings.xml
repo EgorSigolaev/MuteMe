@@ -11,6 +11,9 @@
     <string name="about_us">О нас</string>
     <string name="add_place">Add place</string>
 
+    // AddPlaceOnMap
+    <string name="edit_text_place_search_hint">Enter place name</string>
+
     //Location Service
-    <string name="foreground_notification_description">Updating location...</string>
+    <string name="foreground_notification_description">Updating location…</string>
 </resources>

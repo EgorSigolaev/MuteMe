@@ -1,6 +1,7 @@
-package com.egorsigolaev.muteme.di.modules
+package com.egorsigolaev.muteme.di.modules.vmmodules
 
 import androidx.lifecycle.ViewModel
+import com.egorsigolaev.muteme.di.modules.ViewModelKey
 import com.egorsigolaev.muteme.presentation.screens.main.MainViewModel
 import dagger.Binds
 import dagger.Module

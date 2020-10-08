@@ -1,15 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.screens.addplace.AddPlaceFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presentation.screens.addplace.AddPlaceFragment"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:clickable="true">
 
-    <TextView
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="50sp"
-        android:gravity="center"
-        android:text="Add place fragment" />
+        android:layout_height="match_parent"/>
+
+    <EditText
+        android:padding="8dp"
+        android:background="@drawable/edit_text_search_place_background"
+        android:id="@+id/editTextSearchPlace"
+        android:hint="@string/edit_text_place_search_hint"
+        android:textColor="@android:color/black"
+        android:drawableStart="@drawable/ic_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonPrevious"
+        android:backgroundTint="@android:color/white"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
+        app:borderWidth="0dp"
+        app:fabSize="mini"
+        android:src="@drawable/ic_previous"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonNext"
+        android:backgroundTint="@android:color/white"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
+        app:borderWidth="0dp"
+        app:fabSize="mini"
+        android:src="@drawable/ic_next"/>
 
 </FrameLayout>
