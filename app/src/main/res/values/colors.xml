@@ -6,4 +6,7 @@
 
     <color name="main_menu_color">#6AD8FB</color>
     <color name="ripple_color">#989797</color>
+
+    <color name="searchplace_adapter_divider">#989898</color>
+
 </resources>

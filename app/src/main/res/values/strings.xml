@@ -13,6 +13,9 @@
 
     // AddPlaceOnMap
     <string name="edit_text_place_search_hint">Enter place name</string>
+    <string name="place_api_key">AIzaSyClQ_mQPHWE-K9hDoR8TPv6hk40K1Dqsu4</string>
+    <string name="place_search_unknown_error">Ooops, something went wrong, try later</string>
+    <string name="place_search_zero_results_error">Nothing found in your area</string>
 
     //Location Service
     <string name="foreground_notification_description">Updating location…</string>

@@ -1,8 +1,11 @@
 package com.egorsigolaev.muteme.presentation.screens.main
 
 import android.content.pm.PackageManager
-import com.egorsigolaev.muteme.data.source.PlaceRepository
+import com.egorsigolaev.muteme.data.PlaceRepository
 import com.egorsigolaev.muteme.presentation.base.BaseViewModel
+import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewAction
+import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewEvent
+import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewState
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers

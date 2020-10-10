@@ -2,12 +2,13 @@ package com.egorsigolaev.muteme.data.impl
 
 import com.egorsigolaev.muteme.data.local.place.PlaceStorage
 import com.egorsigolaev.muteme.data.models.Place
-import com.egorsigolaev.muteme.data.source.PlaceRepository
+import com.egorsigolaev.muteme.data.PlaceRepository
 import io.reactivex.Completable
 import io.reactivex.Single
 import javax.inject.Inject
 
-class PlaceRepositoryImpl @Inject constructor(private val placeStorage: PlaceStorage): PlaceRepository {
+class PlaceRepositoryImpl @Inject constructor(private val placeStorage: PlaceStorage):
+    PlaceRepository {
     override fun getPlacesByLastVisitTime(): Single<List<Place>> {
         return placeStorage.getPlacesByLastVisitTime()
     }

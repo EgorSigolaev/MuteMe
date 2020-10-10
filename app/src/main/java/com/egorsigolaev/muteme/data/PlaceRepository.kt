@@ -1,4 +1,4 @@
-package com.egorsigolaev.muteme.data.source
+package com.egorsigolaev.muteme.data
 
 import androidx.room.*
 import com.egorsigolaev.muteme.data.models.Place

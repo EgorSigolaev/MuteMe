@@ -1,4 +1,4 @@
-package com.egorsigolaev.muteme.presentation.screens.main
+package com.egorsigolaev.muteme.presentation.screens.main.models
 
 import com.egorsigolaev.muteme.data.models.Place
 

@@ -52,6 +52,7 @@ dependencies {
     // RxJava
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
+    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.2.0' // RxBinding
 
     // Navigation and FragmentContainerView
     def navVersion = "2.3.0"
@@ -78,8 +79,15 @@ dependencies {
     api "com.google.android.gms:play-services-maps:17.0.0"
     implementation "com.google.android.libraries.places:places:2.2.0"
 
-    // Json
-    implementation 'com.google.code.gson:gson:2.8.6'
+    // Internet
+    def okHttpVersion = '4.7.2'
+    def retrofitVersion = '2.9.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
+    implementation "com.google.code.gson:gson:2.8.6"
 
     //Tests
     testImplementation 'junit:junit:4.12'

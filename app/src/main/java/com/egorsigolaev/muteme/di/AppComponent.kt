@@ -20,7 +20,8 @@ import dagger.android.AndroidInjector
         AddPlaceModule::class,
         RepositoryModule::class,
         StorageModule::class,
-        LocationModule::class
+        LocationModule::class,
+        NetworkModule::class
     ]
 )
 @AppScope

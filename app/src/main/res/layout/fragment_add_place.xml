@@ -16,16 +16,34 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <EditText
-        android:padding="8dp"
-        android:background="@drawable/edit_text_search_place_background"
-        android:id="@+id/editTextSearchPlace"
-        android:hint="@string/edit_text_place_search_hint"
-        android:textColor="@android:color/black"
-        android:drawableStart="@drawable/ic_search"
+    <LinearLayout
+        android:layout_margin="16dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp" />
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:padding="8dp"
+            android:background="@drawable/edit_text_search_place_background"
+            android:id="@+id/editTextSearchPlace"
+            android:hint="@string/edit_text_place_search_hint"
+            android:textColor="@android:color/black"
+            android:drawableStart="@drawable/ic_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:visibility="gone"
+            android:id="@+id/recyclerViewSearchPlaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:itemCount="4"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/cell_search_place"/>
+
+    </LinearLayout>
+
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/buttonPrevious"
