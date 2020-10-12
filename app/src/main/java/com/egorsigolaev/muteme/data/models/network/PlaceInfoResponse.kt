@@ -1,5 +1,7 @@
 package com.egorsigolaev.muteme.data.models.network
 
+import com.google.gson.annotations.SerializedName
+
 class PlaceInfoResponse (
     val result: Result,
     val status: String
@@ -13,6 +15,9 @@ data class Geometry(
 )
 
 data class Location(
-    val lat: String,
-    val lng: String
+    @SerializedName("lat")
+    val latitude: Double,
+
+    @SerializedName("lng")
+    val longitude: Double
 )

@@ -3,6 +3,7 @@ package com.egorsigolaev.muteme.presentation.screens.addplace
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.egorsigolaev.muteme.R
 import com.egorsigolaev.muteme.data.models.network.SearchPlace
@@ -10,7 +11,7 @@ import kotlinx.android.synthetic.main.cell_search_place.view.*
 
 class SearchPlaceAdapter(val searchPlaceClickListener: SearchPlaceClickListener?): RecyclerView.Adapter<SearchPlaceAdapter.SearchPlaceHolder>() {
 
-    private val places = mutableListOf<SearchPlace>()
+    val places = mutableListOf<SearchPlace>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchPlaceHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.cell_search_place, parent, false)
@@ -32,7 +33,6 @@ class SearchPlaceAdapter(val searchPlaceClickListener: SearchPlaceClickListener?
         } ?: run{
             this.places.clear()
         }
-        notifyDataSetChanged()
     }
 
     interface SearchPlaceClickListener{
