@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.cell_search_place.view.*
 
 class SearchPlaceAdapter(val searchPlaceClickListener: SearchPlaceClickListener?): RecyclerView.Adapter<SearchPlaceAdapter.SearchPlaceHolder>() {
 
-    val places = mutableListOf<SearchPlace>()
+    private val places = mutableListOf<SearchPlace>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchPlaceHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.cell_search_place, parent, false)

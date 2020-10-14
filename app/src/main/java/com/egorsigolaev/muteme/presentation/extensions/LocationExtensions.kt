@@ -52,6 +52,37 @@ fun Fragment.startLocationUpdate(fusedLocationClient: FusedLocationProviderClien
     }, Looper.getMainLooper())
 }
 
+fun Fragment.getLastKnownLocation(fusedLocationClient: FusedLocationProviderClient, callback: LocationUpdateCallback? = null){
+    if (ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+        && ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        return
+    }
+    fusedLocationClient.lastLocation.addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val location = task.result
+            val geoCoder = Geocoder(requireContext())
+            if (location == null) {
+                return@addOnCompleteListener
+            }
+            try {
+                val user = geoCoder.getFromLocation(location.latitude, location.longitude, 1)
+                val lat = user[0].latitude
+                val lng = user[0].longitude
+                callback?.onLocationUpdate(UserCoordinates(lat, lng))
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
+
 interface LocationUpdateCallback{
     fun onLocationUpdate(location: UserCoordinates)
 }

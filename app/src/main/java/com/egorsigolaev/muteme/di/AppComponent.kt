@@ -21,7 +21,8 @@ import dagger.android.AndroidInjector
         RepositoryModule::class,
         StorageModule::class,
         LocationModule::class,
-        NetworkModule::class
+        NetworkModule::class,
+        ServiceBindingModule::class
     ]
 )
 @AppScope

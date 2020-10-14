@@ -17,6 +17,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <ImageView
+        android:id="@+id/mapMarker"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:src="@drawable/ic_marker"
+        android:layout_gravity="center"/>
+
     <LinearLayout
         android:layout_margin="16dp"
         android:orientation="vertical"

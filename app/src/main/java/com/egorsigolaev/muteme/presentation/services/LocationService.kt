@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
@@ -19,14 +20,18 @@ import com.egorsigolaev.muteme.MuteMeApp.Companion.TAG
 import com.egorsigolaev.muteme.R
 import com.egorsigolaev.muteme.data.models.Place
 import com.egorsigolaev.muteme.data.models.UserCoordinates
-import com.egorsigolaev.muteme.presentation.screens.main.MainFragment
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import dagger.android.AndroidInjection
+import javax.inject.Inject
 
 
-class LocationService: Service() {
+class LocationService(): Service() {
 
     private var places: ArrayList<Place> = arrayListOf()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    @Inject
+    lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -42,12 +47,12 @@ class LocationService: Service() {
 
         }
         getLocation()
-        return super.onStartCommand(intent, flags, startId)
+        return START_STICKY
     }
 
     override fun onCreate() {
+        AndroidInjection.inject(this)
         super.onCreate()
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         showForegroundNotification()
     }
 
@@ -61,7 +66,10 @@ class LocationService: Service() {
             (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
                 channel
             )
-            val notification: Notification = Notification.Builder(this, FOREGROUND_NOTIFICATION_CHANNEL_ID)
+            val notification: Notification = Notification.Builder(
+                this,
+                FOREGROUND_NOTIFICATION_CHANNEL_ID
+            )
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(getString(R.string.foreground_notification_description)).build()
             startForeground(FOREGROUND_NOTIFICATION_ID, notification)
@@ -70,14 +78,49 @@ class LocationService: Service() {
 
     private fun getLocation(){
         val mLocationRequestHighAccuracy = LocationRequest()
-        mLocationRequestHighAccuracy.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         mLocationRequestHighAccuracy.interval = UPDATE_INTERVAL
         mLocationRequestHighAccuracy.fastestInterval = FASTEST_INTERVAL
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "getLocation: stopping the location service.")
             stopSelf()
             return
+        }
+
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(
+            mLocationRequestHighAccuracy
+        )
+        builder.setAlwaysShow(true)
+
+        val result = LocationServices.getSettingsClient(applicationContext).checkLocationSettings(
+            builder.build()
+        )
+
+        result.addOnCompleteListener {
+            try {
+                it.getResult(ApiException::class.java)
+            } catch (exception: ApiException) {
+                when (exception.statusCode) {
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED ->                             // Location settings are not satisfied. But could be fixed by showing the
+                        try {
+
+                            val resolvable = exception as ResolvableApiException
+//                            resolvable.startResolutionForResult(
+//                                applicationContext,
+//                                REQUEST_CHECK_SETTINGS
+//                            )
+                            sendBroadcast(Intent().putExtra(RESOLVABLE_EXCEPTION_EXTRA, resolvable))
+                        } catch (e: SendIntentException) {
+                            // Ignore the error.
+                        } catch (e: ClassCastException) {
+                            // Ignore, should be an impossible error.
+                        }
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
+                    }
+                }
+            }
         }
 
         Log.d(TAG, "getLocation: getting location information.")
@@ -94,13 +137,20 @@ class LocationService: Service() {
                                 latitude = user.latitude,
                                 longitude = user.longitude
                             )
-                        val userLocationDataIntent = Intent(MainFragment.BROADCAST_ACTION)
+                        // Location data
+                        val userLocationDataIntent = Intent(LOCATION_ACTION)
+                        userLocationDataIntent.putExtra(LOCATION_DATA, userLocation)
+                        sendBroadcast(userLocationDataIntent)
+
+                        //All screen data
+                        val screenDataIntent = Intent(SCREEN_DATA_ACTION)
                         userLocationDataIntent.putExtra(SCREEN_DATA, userLocation)
                         sendBroadcast(userLocationDataIntent)
                     }
                 }
             },
-            Looper.myLooper())
+            Looper.getMainLooper()
+        )
 
 
     }
@@ -109,11 +159,17 @@ class LocationService: Service() {
         private const val FOREGROUND_NOTIFICATION_CHANNEL_ID = "FOREGROUND_NOTIFICATION_CHANNEL_ID"
         private const val FOREGROUND_NOTIFICATION_ID = 1
 
-        private const val UPDATE_INTERVAL = 4 * 1000L // 4 secs
+        private const val UPDATE_INTERVAL = 4000L // 4 secs
         private const val FASTEST_INTERVAL: Long = 2000L // 2 secs
 
+        const val LOCATION_DATA = "LOCATION_DATA"
         const val SCREEN_DATA = "LOCATION_USER_DATA"
         const val PLACES_EXTRA = "PLACES_EXTRA"
+        const val RESOLVABLE_EXCEPTION_EXTRA = "RESOLVABLE_EXCEPTION_EXTRA"
+
+        const val GPS_OFF_ERROR_ACTION = "GPS_OFF_ERROR_ACTION"
+        const val LOCATION_ACTION = "LOCATION_ACTION"
+        const val SCREEN_DATA_ACTION = "SCREEN_DATA_ACTION"
     }
 
 

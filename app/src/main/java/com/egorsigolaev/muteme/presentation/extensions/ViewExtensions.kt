@@ -5,9 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Transformation
+import android.widget.EditText
 import com.egorsigolaev.muteme.MuteMeApp
 
-fun View.collapse(coefficient: Long = 1) {
+fun View.collapse(coefficient: Long = 1, finishAnimFunc: (() -> Unit)? = null) {
     val initialHeight = this.measuredHeight
     val a = object : Animation() {
         override fun applyTransformation(interpolatedTime: Float, t: Transformation) {
@@ -22,6 +23,12 @@ fun View.collapse(coefficient: Long = 1) {
 
         override fun willChangeBounds(): Boolean = true
     }
+
+    a.setAnimationListener(object : Animation.AnimationListener{
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationEnd(animation: Animation?) { finishAnimFunc?.invoke() }
+        override fun onAnimationRepeat(animation: Animation?) {}
+    })
     // Collapse speed of 1dp/ms [~123 ms default]
     a.duration = (initialHeight / this.context.resources.displayMetrics.density).toInt()
         .toLong() * coefficient
@@ -29,7 +36,7 @@ fun View.collapse(coefficient: Long = 1) {
     this.startAnimation(a)
 }
 
-fun View.expand(coefficient: Long = 1) {
+fun View.expand(coefficient: Long = 1, finishAnimFunc: (() -> Unit)? = null) {
     val matchParentMeasureSpec =
         View.MeasureSpec.makeMeasureSpec((this.parent as View).width, View.MeasureSpec.EXACTLY)
     val wrapContentMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -53,9 +60,19 @@ fun View.expand(coefficient: Long = 1) {
         override fun willChangeBounds(): Boolean = true
     }
 
+    a.setAnimationListener(object : Animation.AnimationListener{
+        override fun onAnimationStart(animation: Animation?) {}
+        override fun onAnimationEnd(animation: Animation?) { finishAnimFunc?.invoke() }
+        override fun onAnimationRepeat(animation: Animation?) {}
+    })
+
 
     // Expansion speed of 1dp/ms
     a.duration = (targetHeight / this.context.resources.displayMetrics.density).toInt()
         .toLong() * coefficient
     this.startAnimation(a)
+}
+
+fun EditText.clear(){
+    this.setText("")
 }

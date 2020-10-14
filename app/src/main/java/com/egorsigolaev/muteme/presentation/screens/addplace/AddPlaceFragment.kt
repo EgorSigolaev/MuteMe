@@ -1,11 +1,14 @@
 package com.egorsigolaev.muteme.presentation.screens.addplace
 
 import android.annotation.SuppressLint
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AnimationUtils
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.egorsigolaev.muteme.MuteMeApp.Companion.TAG
@@ -22,31 +25,26 @@ import com.egorsigolaev.muteme.presentation.screens.addplace.models.AddPlaceView
 import com.egorsigolaev.muteme.presentation.screens.addplace.models.AddPlaceViewState
 import com.egorsigolaev.muteme.presentation.screens.addplace.models.ScreenState
 import com.egorsigolaev.muteme.presentation.services.LocationService
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.jakewharton.rxbinding2.widget.RxTextView
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.fragment_add_place.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import java.lang.RuntimeException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.log
 
 class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCallback,
-    SearchPlaceAdapter.SearchPlaceClickListener, LocationUpdateCallback {
+    SearchPlaceAdapter.SearchPlaceClickListener {
 
 
-    @Inject
-    lateinit var fusedLocationClient: FusedLocationProviderClient
+    @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var map: GoogleMap
@@ -59,13 +57,9 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
         super.onCreate(savedInstanceState)
-        if(savedInstanceState != null){
-            mapView.onCreate(savedInstanceState)
-        }
     }
 
 
-    @SuppressLint("CheckResult", "ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = injectViewModel(viewModelFactory)
@@ -73,36 +67,38 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
             viewStates().observe(viewLifecycleOwner, Observer { bindViewState(viewState = it) })
             viewAction().observe(viewLifecycleOwner, Observer { bindViewAction(viewAction = it) })
         }
-        var mapViewBundle: Bundle? = null
-        if(savedInstanceState != null){
-            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY_ADD_PLACE)
-        }
-        mapView.onCreate(mapViewBundle)
-
+        mapView.onCreate(savedInstanceState)
         buttonPrevious.setOnClickListener {
             findNavController().popBackStack()
         }
         configureRecyclerView()
+        configureSearchPlaceEditText()
+        initMap()
+    }
+
+    @SuppressLint("CheckResult")
+    private fun configureSearchPlaceEditText(){
         RxTextView.textChanges(editTextSearchPlace)
             .map(CharSequence::toString)
             .debounce(500, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ input->
-                if(!input.isBlank()){
-                    //recyclerViewSearchPlaces.visibility = View.VISIBLE
+            .subscribe({ input ->
+                if (!input.isBlank()) {
                     recyclerViewSearchPlaces.expand()
-                    viewModel.obtainEvent(AddPlaceViewEvent.GetSearchPlaces(
-                        key = getString(R.string.place_api_key),
-                        input = input,
-                        language = LanguageUtils.getLanguage(),
-                        location = UserCoordinates(latitude = 46.425019, longitude =  30.763333)))
-                }else{
-                    //recyclerViewSearchPlaces.collapse()
+                    viewModel.obtainEvent(
+                        AddPlaceViewEvent.GetSearchPlaces(
+                            key = getString(R.string.place_api_key),
+                            input = input,
+                            language = LanguageUtils.getLanguage(),
+                            location = UserCoordinates(latitude = 46.425019, longitude = 30.763333)
+                        )
+                    )
+                } else {
+                    recyclerViewSearchPlaces.collapse()
                 }
             }, {
-                Log.d(TAG, "onViewCreated: ${it.printStackTrace()}")
+                showToast(it.localizedMessage)
             })
-
     }
 
     private fun bindViewAction(viewAction: AddPlaceViewAction) {
@@ -121,14 +117,19 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
                 submitPlaces(places = emptyList())
             }
             is AddPlaceViewState.PlaceInfoLoaded -> {
-                with(viewState.result.geometry.location){
-                    addPlace(userCoordinates = UserCoordinates(latitude = latitude, longitude = longitude))
+                with(viewState.result.geometry.location) {
+                    setPlace(
+                        userCoordinates = UserCoordinates(
+                            latitude = latitude,
+                            longitude = longitude
+                        )
+                    )
                 }
             }
             is AddPlaceViewState.ScreenStateChanged -> {
-                if(viewState.screenState is ScreenState.Loading){
+                if (viewState.screenState is ScreenState.Loading) {
                     startLoading(message = viewState.screenState.message)
-                }else if(viewState.screenState is ScreenState.Finished){
+                } else if (viewState.screenState is ScreenState.Finished) {
                     stopLoading()
                 }
             }
@@ -157,33 +158,69 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        map.setOnMapClickListener {
-            recyclerViewSearchPlaces.collapse()
+        getLastKnownLocation(fusedLocationClient, object : LocationUpdateCallback{
+            override fun onLocationUpdate(location: UserCoordinates) { setPlace(location) }
+        })
+        map.projection.visibleRegion.latLngBounds.center.apply {
+            setPlace(UserCoordinates(latitude = this.latitude, longitude = this.longitude))
         }
-        requireActivity().startService(Intent(requireContext(), LocationService::class.java))
+        map.setOnMapClickListener {
+            if(recyclerViewSearchPlaces.visibility == View.VISIBLE){
+                recyclerViewSearchPlaces.collapse()
+            }
+        }
+        map.setOnCameraMoveListener {
+            val cameraPosition: CameraPosition = googleMap.cameraPosition
+        }
+        map.setOnCameraIdleListener {
+            val center = map.projection.visibleRegion.latLngBounds.center
+            val moveDownAnimation = AnimationUtils.loadAnimation(
+                requireContext(),
+                R.anim.map_marker_move_down
+            )
+            moveDownAnimation.fillAfter = true
+            mapMarker.startAnimation(moveDownAnimation)
+            //Log.d(TAG, "onMapReady: marker has been put, latitude = " + center.latitude + " longitude = " + center.longitude)
+        }
+        map.setOnCameraMoveStartedListener {
+            val moveUpAnimation = AnimationUtils.loadAnimation(
+                requireContext(),
+                R.anim.map_marker_move_up
+            )
+            moveUpAnimation.fillAfter = true
+            mapMarker.startAnimation(moveUpAnimation)
+            //Log.d(TAG, "onMapReady: setOnCameraMoveStartedListener")
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when(requestCode){
+            REQUEST_GPS_ENABLE -> {
+                Log.d(TAG, "onActivityResult: ")
+            }
         }
     }
 
-    private fun addPlace(userCoordinates: UserCoordinates){
-        map.addMarker(MarkerOptions().position(LatLng(userCoordinates.latitude, userCoordinates.longitude)).title("Marker"))
+    private fun setPlace(userCoordinates: UserCoordinates){
+        //setMarker(LatLng(userCoordinates.latitude, userCoordinates.longitude))
         setCameraView(userCoordinates = userCoordinates)
     }
 
+    private fun setMarker(latLng: LatLng){
+        map.clear()
+        map.addMarker(MarkerOptions().position(latLng).title("Marker"))
+    }
+
     private fun setCameraView(userCoordinates: UserCoordinates){
-        val bottomBoundary = userCoordinates.latitude - 0.01
-        val leftBoundary = userCoordinates.longitude - 0.01
-        val topBoundary = userCoordinates.latitude + 0.01
-        val rightBoundary = userCoordinates.longitude + 0.01
-        val mapBoundary = LatLngBounds(
-            LatLng(bottomBoundary, leftBoundary),
-            LatLng(topBoundary, rightBoundary)
+        map.moveCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    userCoordinates.latitude,
+                    userCoordinates.longitude
+                ), 18f
+            )
         )
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBoundary, 0))
     }
 
 
@@ -202,13 +239,29 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
 
     override fun onSearchPlaceClick(place: SearchPlace) {
         hideKeyboard()
-        recyclerViewSearchPlaces.collapse()
-        editTextSearchPlace.setText("")
-        viewModel.obtainEvent(AddPlaceViewEvent.GetPlaceInfo(key = getString(R.string.google_maps_api_key), placeId = place.placeId, language = LanguageUtils.getLanguage()))
+        recyclerViewSearchPlaces.collapse(finishAnimFunc = { searchPlaceAdapter.submitList(emptyList()) })
+        editTextSearchPlace.clear()
+        viewModel.obtainEvent(
+            AddPlaceViewEvent.GetPlaceInfo(
+                key = getString(R.string.google_maps_api_key),
+                placeId = place.placeId,
+                language = LanguageUtils.getLanguage()
+            )
+        )
     }
 
-    override fun onLocationUpdate(location: UserCoordinates) {
-        lastKnownLocation = location
+    private fun registerLocationListener(){
+        requireContext().startService(Intent(requireContext(), LocationService::class.java))
+        val intentFilter = IntentFilter().apply {
+            addAction(LocationService.LOCATION_ACTION)
+            addAction(LocationService.GPS_OFF_ERROR_ACTION)
+        }
+        requireContext().registerReceiver(locationBR, intentFilter)
+    }
+
+    private fun unregisterLocationListener(){
+        requireContext().stopService(Intent(requireContext(), LocationService::class.java))
+        requireContext().unregisterReceiver(locationBR)
     }
 
     override fun onResume() {
@@ -218,13 +271,14 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
 
     override fun onStart() {
         super.onStart()
-        initMap()
         mapView.onStart()
+        registerLocationListener()
     }
 
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        unregisterLocationListener()
     }
 
     override fun onLowMemory() {
@@ -237,7 +291,23 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
         mapView.onPause()
     }
 
+    private val locationBR = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let { locationIntent ->
+                lastKnownLocation = locationIntent.extras?.get(LocationService.LOCATION_DATA) as? UserCoordinates
+                (locationIntent.extras?.get(LocationService.GPS_OFF_ERROR_ACTION) as? ResolvableApiException)?.let {
+                    it.startResolutionForResult(
+                        requireActivity(),
+                        REQUEST_GPS_ENABLE
+                    )
+                }
+            }
+        }
+
+    }
+
     companion object{
+        private const val REQUEST_GPS_ENABLE = 1234
         private const val MAPVIEW_BUNDLE_KEY_ADD_PLACE = "MAPVIEW_BUNDLE_KEY_ADD_PLACE"
     }
 
