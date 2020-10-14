@@ -26,13 +26,14 @@ class SearchPlaceAdapter(val searchPlaceClickListener: SearchPlaceClickListener?
         holder.bind(place = places[position])
     }
 
-    fun submitList(places: List<SearchPlace>?){
-        places?.let {
-            this.places.clear()
-            this.places.addAll(it)
-        } ?: run{
-            this.places.clear()
-        }
+    fun submitList(places: List<SearchPlace>){
+        // TODO DiffUtils doesn't work, maybe fix later
+        //val utils = SearchPlaceDiffUtils(this.places, places)
+        //val diffResult = DiffUtil.calculateDiff(utils)
+        //diffResult.dispatchUpdatesTo(this)
+        this.places.clear()
+        this.places.addAll(places)
+        notifyDataSetChanged()
     }
 
     interface SearchPlaceClickListener{

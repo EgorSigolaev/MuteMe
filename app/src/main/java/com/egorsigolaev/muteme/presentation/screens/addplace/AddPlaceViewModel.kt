@@ -1,7 +1,8 @@
 package com.egorsigolaev.muteme.presentation.screens.addplace
 
+import android.graphics.Rect
+import android.view.View
 import com.egorsigolaev.muteme.R
-import com.egorsigolaev.muteme.constants.network.GoogleApiResponseCodes
 import com.egorsigolaev.muteme.constants.network.GoogleApiResponseCodes.OK
 import com.egorsigolaev.muteme.constants.network.GoogleApiResponseCodes.UNKNOWN_ERROR
 import com.egorsigolaev.muteme.constants.network.GoogleApiResponseCodes.ZERO_RESULTS
@@ -21,23 +22,35 @@ class AddPlaceViewModel @Inject constructor(private val repository: AddPlaceRepo
     private val searchPlacesCompositeDisposable = CompositeDisposable()
     private val placeInfoCompositeDisposable = CompositeDisposable()
 
-    private fun getSearchPlaces(key: String, input: String, language: String, location: UserCoordinates?){
+    private fun getSearchPlaces(
+        key: String,
+        input: String,
+        language: String,
+        location: UserCoordinates?
+    ){
         searchPlacesCompositeDisposable.clear()
-        val disposable = repository.getSearchPlaces(key = key, input = input, language = language, location = location)
+        val disposable = repository.getSearchPlaces(
+            key = key,
+            input = input,
+            language = language,
+            location = location
+        )
             .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                when(it.status){
+                when (it.status) {
                     OK -> {
                         viewState = AddPlaceViewState.SearchPlaceLoaded(places = it.predictions)
                     }
                     UNKNOWN_ERROR -> {
                         viewState = AddPlaceViewState.SearchPlaceError(errorCode = UNKNOWN_ERROR)
-                        viewAction = AddPlaceViewAction.ShowError(R.string.place_search_unknown_error)
+                        viewAction =
+                            AddPlaceViewAction.ShowError(R.string.place_search_unknown_error)
                     }
                     ZERO_RESULTS -> {
                         viewState = AddPlaceViewState.SearchPlaceError(errorCode = ZERO_RESULTS)
-                        viewAction = AddPlaceViewAction.ShowError(R.string.place_search_zero_results_error)
+                        viewAction =
+                            AddPlaceViewAction.ShowError(R.string.place_search_zero_results_error)
                     }
                 }
 
@@ -53,17 +66,19 @@ class AddPlaceViewModel @Inject constructor(private val repository: AddPlaceRepo
             .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                when(it.status){
+                when (it.status) {
                     OK -> {
                         viewState = AddPlaceViewState.PlaceInfoLoaded(result = it.result)
                     }
                     UNKNOWN_ERROR -> {
                         viewState = AddPlaceViewState.SearchPlaceError(errorCode = UNKNOWN_ERROR)
-                        viewAction = AddPlaceViewAction.ShowError(R.string.place_search_unknown_error)
+                        viewAction =
+                            AddPlaceViewAction.ShowError(R.string.place_search_unknown_error)
                     }
                     ZERO_RESULTS -> {
                         viewState = AddPlaceViewState.SearchPlaceError(errorCode = ZERO_RESULTS)
-                        viewAction = AddPlaceViewAction.ShowError(R.string.place_search_zero_results_error)
+                        viewAction =
+                            AddPlaceViewAction.ShowError(R.string.place_search_zero_results_error)
                     }
                 }
             }, {
@@ -76,12 +91,17 @@ class AddPlaceViewModel @Inject constructor(private val repository: AddPlaceRepo
     override fun obtainEvent(viewEvent: AddPlaceViewEvent) {
         when(viewEvent){
             is AddPlaceViewEvent.GetSearchPlaces -> {
-                with(viewEvent){
-                    getSearchPlaces(key = key, input = input, language = language, location = location)
+                with(viewEvent) {
+                    getSearchPlaces(
+                        key = key,
+                        input = input,
+                        language = language,
+                        location = location
+                    )
                 }
             }
             is AddPlaceViewEvent.GetPlaceInfo -> {
-                with(viewEvent){
+                with(viewEvent) {
                     getPlaceInfo(key = key, placeId = placeId, language = language)
                 }
             }

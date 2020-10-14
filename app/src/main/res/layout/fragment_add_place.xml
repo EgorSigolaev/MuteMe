@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
+    android:id="@+id/mainContainer"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -33,7 +34,6 @@
             android:layout_height="wrap_content" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:paddingBottom="16dp"
             android:visibility="visible"
             android:id="@+id/recyclerViewSearchPlaces"
             android:layout_width="match_parent"
