@@ -5,6 +5,7 @@ import com.egorsigolaev.muteme.MuteMeApp
 import com.egorsigolaev.muteme.di.modules.*
 import com.egorsigolaev.muteme.di.modules.vmmodules.AddPlaceModule
 import com.egorsigolaev.muteme.di.modules.vmmodules.MainModule
+import com.egorsigolaev.muteme.di.modules.vmmodules.PlaceSettingsModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjectionModule
@@ -18,6 +19,7 @@ import dagger.android.AndroidInjector
         ScreenBindingModule::class,
         MainModule::class,
         AddPlaceModule::class,
+        PlaceSettingsModule::class,
         RepositoryModule::class,
         StorageModule::class,
         LocationModule::class,

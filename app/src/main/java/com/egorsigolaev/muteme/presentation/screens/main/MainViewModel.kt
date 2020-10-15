@@ -3,6 +3,7 @@ package com.egorsigolaev.muteme.presentation.screens.main
 import android.content.pm.PackageManager
 import com.egorsigolaev.muteme.data.PlaceRepository
 import com.egorsigolaev.muteme.presentation.base.BaseViewModel
+import com.egorsigolaev.muteme.presentation.extensions.LOCATION_PERMISSION_REQUEST_CODE
 import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewAction
 import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewEvent
 import com.egorsigolaev.muteme.presentation.screens.main.models.MainViewState
@@ -10,7 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
-class MainViewModel @javax.inject.Inject constructor(val placeRepository: PlaceRepository): BaseViewModel<MainViewState, MainViewAction, MainViewEvent>() {
+class MainViewModel @javax.inject.Inject constructor(private val placeRepository: PlaceRepository): BaseViewModel<MainViewState, MainViewAction, MainViewEvent>() {
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -39,7 +40,7 @@ class MainViewModel @javax.inject.Inject constructor(val placeRepository: PlaceR
         when(viewEvent){
             is MainViewEvent.OnRequestPermissionsResult -> {
                 when(viewEvent.requestCode){
-                    MainFragment.LOCATION_PERMISSION_REQUEST_CODE -> {
+                    LOCATION_PERMISSION_REQUEST_CODE -> {
                         if(viewEvent.grantResults.isNotEmpty()){
                             for(result in viewEvent.grantResults){
                                 if(result != PackageManager.PERMISSION_GRANTED){

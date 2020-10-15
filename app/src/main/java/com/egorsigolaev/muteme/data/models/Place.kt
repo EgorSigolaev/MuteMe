@@ -5,6 +5,7 @@ import androidx.room.*
 import com.egorsigolaev.muteme.data.models.Place.Companion.TABLE_NAME
 import com.egorsigolaev.muteme.data.models.converters.UserCoordinatesConverter
 import com.egorsigolaev.muteme.data.models.converters.VolumeModeConverter
+import com.egorsigolaev.muteme.domain.models.VolumeMode
 import kotlinx.android.parcel.Parcelize
 import kotlin.math.*
 
@@ -14,6 +15,9 @@ data class Place(
 
     @ColumnInfo(name = PLACE_NAME_FIELD)
     val name: String,
+
+    @ColumnInfo(name = PLACE_DESCRIPTION_FIELD)
+    val description: String,
 
     @ColumnInfo(name = PLACE_COORDINATES_FIELD)
     @TypeConverters(UserCoordinatesConverter::class)
@@ -54,6 +58,7 @@ data class Place(
 
         const val PLACE_ID_FIELD = "place_id"
         const val PLACE_NAME_FIELD = "place_name"
+        const val PLACE_DESCRIPTION_FIELD = "place_description"
         const val PLACE_COORDINATES_FIELD = "place_coordinates"
         const val PLACE_VISIT_TIME_FIELD = "place_visit_time"
         const val PLACE_CREATE_TIME_FIELD = "place_create_time_field"

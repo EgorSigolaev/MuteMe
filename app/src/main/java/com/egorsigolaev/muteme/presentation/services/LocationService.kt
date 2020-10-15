@@ -89,40 +89,6 @@ class LocationService(): Service() {
             return
         }
 
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(
-            mLocationRequestHighAccuracy
-        )
-        builder.setAlwaysShow(true)
-
-        val result = LocationServices.getSettingsClient(applicationContext).checkLocationSettings(
-            builder.build()
-        )
-
-        result.addOnCompleteListener {
-            try {
-                it.getResult(ApiException::class.java)
-            } catch (exception: ApiException) {
-                when (exception.statusCode) {
-                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED ->                             // Location settings are not satisfied. But could be fixed by showing the
-                        try {
-
-                            val resolvable = exception as ResolvableApiException
-//                            resolvable.startResolutionForResult(
-//                                applicationContext,
-//                                REQUEST_CHECK_SETTINGS
-//                            )
-                            sendBroadcast(Intent().putExtra(RESOLVABLE_EXCEPTION_EXTRA, resolvable))
-                        } catch (e: SendIntentException) {
-                            // Ignore the error.
-                        } catch (e: ClassCastException) {
-                            // Ignore, should be an impossible error.
-                        }
-                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                    }
-                }
-            }
-        }
-
         Log.d(TAG, "getLocation: getting location information.")
         fusedLocationClient.requestLocationUpdates(
             mLocationRequestHighAccuracy, object : LocationCallback() {
@@ -145,7 +111,7 @@ class LocationService(): Service() {
                         //All screen data
                         val screenDataIntent = Intent(SCREEN_DATA_ACTION)
                         userLocationDataIntent.putExtra(SCREEN_DATA, userLocation)
-                        sendBroadcast(userLocationDataIntent)
+                        sendBroadcast(screenDataIntent)
                     }
                 }
             },

@@ -11,12 +11,24 @@
     <string name="about_us">О нас</string>
     <string name="add_place">Add place</string>
 
-    // AddPlaceOnMap
+    // Add Place Screen
     <string name="edit_text_place_search_hint">Enter place name</string>
     <string name="place_api_key">AIzaSyClQ_mQPHWE-K9hDoR8TPv6hk40K1Dqsu4</string>
     <string name="place_search_unknown_error">Ooops, something went wrong, try later</string>
     <string name="place_search_zero_results_error">Nothing found in your area</string>
 
+    // Place Settings Screen
+    <string name="place_name">Place name</string>
+    <string name="place_description">Place description</string>
+    <string name="volume_mode">Volume mode</string>
+    <string name="volume">Volume</string>
+    <string name="vibration">Vibration</string>
+    <string name="silent">Silent</string>
+    <string name="not_specified">Not specified</string>
+
     //Location Service
     <string name="foreground_notification_description">Updating location…</string>
+    <string name="dont_select">Dont select</string>
+    <string name="save">Save</string>
+    <string name="place_name_not_filled_error">Place name field must be filled</string>
 </resources>

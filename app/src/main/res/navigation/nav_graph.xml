@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainFragment">
+    app:startDestination="@id/placeSettingsFragment">
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.egorsigolaev.muteme.presentation.screens.main.MainFragment"
@@ -12,11 +12,24 @@
             android:id="@+id/action_to_add_place_fragment"
             app:destination="@id/addPlaceFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/addPlaceFragment"
         android:name="com.egorsigolaev.muteme.presentation.screens.addplace.AddPlaceFragment"
         android:label="fragment_add_place"
-        tools:layout="@layout/fragment_add_place" />
+        tools:layout="@layout/fragment_add_place" >
+        <action
+            android:id="@+id/action_to_place_settings_fragment"
+            app:destination="@id/placeSettingsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/placeSettingsFragment"
+        android:name="com.egorsigolaev.muteme.presentation.screens.placesettings.PlaceSettingsFragment"
+        android:label="fragment_place_settings"
+        tools:layout="@layout/fragment_place_settings" />
 </navigation>

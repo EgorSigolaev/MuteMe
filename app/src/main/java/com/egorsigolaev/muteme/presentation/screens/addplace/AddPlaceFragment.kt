@@ -71,6 +71,9 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
         buttonPrevious.setOnClickListener {
             findNavController().popBackStack()
         }
+        buttonNext.setOnClickListener {
+            findNavController().navigate(R.id.action_to_place_settings_fragment)
+        }
         configureRecyclerView()
         configureSearchPlaceEditText()
         initMap()

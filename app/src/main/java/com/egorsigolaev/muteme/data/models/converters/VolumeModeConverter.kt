@@ -1,8 +1,7 @@
 package com.egorsigolaev.muteme.data.models.converters
 
 import androidx.room.TypeConverter
-import com.egorsigolaev.muteme.data.models.UserCoordinates
-import com.egorsigolaev.muteme.data.models.VolumeMode
+import com.egorsigolaev.muteme.domain.models.VolumeMode
 import com.google.gson.Gson
 
 class VolumeModeConverter {

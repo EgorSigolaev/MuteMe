@@ -48,11 +48,13 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
+    implementation 'com.jaredrummler:material-spinner:1.3.1'
 
     // RxJava
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
-    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.2.0' // RxBinding
+    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'// RxBinding
 
     // Navigation and FragmentContainerView
     def navVersion = "2.3.0"
