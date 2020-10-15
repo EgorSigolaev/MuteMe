@@ -11,4 +11,6 @@ data class PlaceSettingsViewState(
 sealed class PlaceSettingsLoadingState {
     object VolumeModeSelected: PlaceSettingsLoadingState()
     object VolumeModeNotSelected: PlaceSettingsLoadingState()
+    object PlaceSavingStarted: PlaceSettingsLoadingState()
+    object PlaceSavingFinished: PlaceSettingsLoadingState()
 }

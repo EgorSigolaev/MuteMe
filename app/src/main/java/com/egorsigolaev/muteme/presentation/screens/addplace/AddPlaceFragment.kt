@@ -53,6 +53,7 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
         SearchPlaceAdapter(this)
     }
     private var lastKnownLocation: UserCoordinates? = null
+    private var selectedPlaceCoordinates: UserCoordinates? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -72,7 +73,11 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
             findNavController().popBackStack()
         }
         buttonNext.setOnClickListener {
-            findNavController().navigate(R.id.action_to_place_settings_fragment)
+            selectedPlaceCoordinates?.let {
+                val bundle = Bundle()
+                bundle.putParcelable(PLACE_COORDINATED_BUNDLE_DATA, selectedPlaceCoordinates)
+                findNavController().navigate(R.id.action_to_place_settings_fragment, bundle)
+            }
         }
         configureRecyclerView()
         configureSearchPlaceEditText()
@@ -177,13 +182,13 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
         }
         map.setOnCameraIdleListener {
             val center = map.projection.visibleRegion.latLngBounds.center
+            selectedPlaceCoordinates = UserCoordinates(latitude = center.latitude, longitude = center.longitude)
             val moveDownAnimation = AnimationUtils.loadAnimation(
                 requireContext(),
                 R.anim.map_marker_move_down
             )
             moveDownAnimation.fillAfter = true
             mapMarker.startAnimation(moveDownAnimation)
-            //Log.d(TAG, "onMapReady: marker has been put, latitude = " + center.latitude + " longitude = " + center.longitude)
         }
         map.setOnCameraMoveStartedListener {
             val moveUpAnimation = AnimationUtils.loadAnimation(
@@ -310,6 +315,7 @@ class AddPlaceFragment : BaseFragment(R.layout.fragment_add_place), OnMapReadyCa
     }
 
     companion object{
+        const val PLACE_COORDINATED_BUNDLE_DATA = "PLACE_COORDINATED_BUNDLE_DATA"
         private const val REQUEST_GPS_ENABLE = 1234
         private const val MAPVIEW_BUNDLE_KEY_ADD_PLACE = "MAPVIEW_BUNDLE_KEY_ADD_PLACE"
     }

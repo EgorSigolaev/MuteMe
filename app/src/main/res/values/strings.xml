@@ -25,6 +25,7 @@
     <string name="vibration">Vibration</string>
     <string name="silent">Silent</string>
     <string name="not_specified">Not specified</string>
+    <string name="place_enter_radius">Place enter radius (%1$dm)</string>
 
     //Location Service
     <string name="foreground_notification_description">Updating location…</string>

@@ -17,14 +17,17 @@ data class Place(
     val name: String,
 
     @ColumnInfo(name = PLACE_DESCRIPTION_FIELD)
-    val description: String,
+    val description: String? = null,
 
     @ColumnInfo(name = PLACE_COORDINATES_FIELD)
     @TypeConverters(UserCoordinatesConverter::class)
     val coordinates: UserCoordinates,
 
     @ColumnInfo(name = PLACE_VISIT_TIME_FIELD)
-    val visitTime: Long,
+    val visitTime: Long? = null,
+
+    @ColumnInfo(name = PLACE_ENTER_RADIUS_FIELD)
+    val enterRadiusMeters: Int,
 
     @ColumnInfo(name = PLACE_CREATE_TIME_FIELD)
     val createTime: Long = System.currentTimeMillis(),
@@ -61,6 +64,7 @@ data class Place(
         const val PLACE_DESCRIPTION_FIELD = "place_description"
         const val PLACE_COORDINATES_FIELD = "place_coordinates"
         const val PLACE_VISIT_TIME_FIELD = "place_visit_time"
+        const val PLACE_ENTER_RADIUS_FIELD = "place_enter_radius"
         const val PLACE_CREATE_TIME_FIELD = "place_create_time_field"
         const val PLACE_VOLUME_MODE_FIELD = "place_volume_mode_field"
     }

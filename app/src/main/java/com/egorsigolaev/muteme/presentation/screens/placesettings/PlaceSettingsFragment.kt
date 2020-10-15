@@ -2,12 +2,16 @@ package com.egorsigolaev.muteme.presentation.screens.placesettings
 
 import android.os.Bundle
 import android.view.View
+import android.widget.SeekBar
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.egorsigolaev.muteme.R
+import com.egorsigolaev.muteme.data.models.UserCoordinates
 import com.egorsigolaev.muteme.domain.models.VolumeMode
 import com.egorsigolaev.muteme.presentation.base.BaseFragment
 import com.egorsigolaev.muteme.presentation.helpers.ViewModelFactory
 import com.egorsigolaev.muteme.presentation.helpers.injectViewModel
+import com.egorsigolaev.muteme.presentation.screens.addplace.AddPlaceFragment
 import com.egorsigolaev.muteme.presentation.screens.placesettings.models.PlaceSettingsLoadingState
 import com.egorsigolaev.muteme.presentation.screens.placesettings.models.PlaceSettingsViewAction
 import com.egorsigolaev.muteme.presentation.screens.placesettings.models.PlaceSettingsViewEvent
@@ -38,6 +42,7 @@ class PlaceSettingsFragment : BaseFragment(R.layout.fragment_place_settings),
             viewStates().observe(viewLifecycleOwner, Observer { bindViewState(viewState = it) })
             viewAction().observe(viewLifecycleOwner, Observer { bindViewAction(viewAction = it) })
         }
+        textViewPlaceEnterRadius.text = getString(R.string.place_enter_radius, 50)
         textViewVolumeMode.setOnClickListener {
             expandChooseVolumeDialog()
         }
@@ -45,9 +50,29 @@ class PlaceSettingsFragment : BaseFragment(R.layout.fragment_place_settings),
             val placeName = editTextPlaceName.editText?.text.toString().trim()
             val placeDescription = editTextPlaceDescription.editText?.text.toString().trim()
             if(viewModel.fieldsFilledCorrect(placeName = placeName, placeDescription = placeDescription)){
-                //TODO Back to main screen
+                viewModel.obtainEvent(PlaceSettingsViewEvent.SavePlace(viewModel.getPlace(
+                    name = placeName,
+                    description = placeDescription,
+                    volumeMode = viewModel.getSelectedVolumeMode(),
+                    placeCoordinates = arguments?.getParcelable(AddPlaceFragment.PLACE_COORDINATED_BUNDLE_DATA)!!,
+                    enterRadiusMeters = sliderEnterRadius.progress + 50
+                )))
             }
         }
+        sliderEnterRadius.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                textViewPlaceEnterRadius.text = getString(R.string.place_enter_radius, progress + 50)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+        })
     }
 
     private fun bindViewAction(viewAction: PlaceSettingsViewAction) {
@@ -65,6 +90,12 @@ class PlaceSettingsFragment : BaseFragment(R.layout.fragment_place_settings),
             }
             PlaceSettingsLoadingState.VolumeModeNotSelected -> {
                 textViewVolumeMode.text = getString(R.string.not_specified)
+            }
+            PlaceSettingsLoadingState.PlaceSavingStarted -> {
+                //TODO Maybe add loading bar
+            }
+            PlaceSettingsLoadingState.PlaceSavingFinished -> {
+                findNavController().navigate(R.id.action_to_main_fragment)
             }
         }
     }

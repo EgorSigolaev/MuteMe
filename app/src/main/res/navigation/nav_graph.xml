@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/placeSettingsFragment">
+    app:startDestination="@id/mainFragment">
     <fragment
         android:id="@+id/mainFragment"
         android:name="com.egorsigolaev.muteme.presentation.screens.main.MainFragment"
@@ -31,5 +31,9 @@
         android:id="@+id/placeSettingsFragment"
         android:name="com.egorsigolaev.muteme.presentation.screens.placesettings.PlaceSettingsFragment"
         android:label="fragment_place_settings"
-        tools:layout="@layout/fragment_place_settings" />
+        tools:layout="@layout/fragment_place_settings" >
+        <action
+            android:id="@+id/action_to_main_fragment"
+            app:destination="@id/mainFragment" />
+    </fragment>
 </navigation>
